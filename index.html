@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#155a7a">
+<meta name="description" content="Lista de cotejo formativa para revisar acuerdos, proceso y transparencia del uso de IA generativa en preparatorias.">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Lista de cotejo IA · Preparatorias | MCCEMS 2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: hoja de cotejo a la izquierda, tarjeta de puntaje fija a la derecha (barra inferior en celular) */
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --ink:#18232e; --muted:#5b6875; --line:#d9dfe5; --soft:#eaeef2;
+  --accent:#155a7a; --accent-soft:#dcebf2; --code:#eef1f4;
+  --strong:#b4432a; --strong-soft:#f7e2dc; --mod:#8a6a12; --mod-soft:#f4ecd4;
+  --l1:#2f7d4f; --l2:#8a6a12; --l3:#c0612b; --l4:#a8322c;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11171d; --paper:#18212a; --ink:#e6ecf1; --muted:#9aa8b5; --line:#2c3843; --soft:#202b35;
+  --accent:#6bb4d6; --accent-soft:#1d3746; --code:#24303b;
+  --strong:#f08a6e; --strong-soft:#3d231c; --mod:#e0c06a; --mod-soft:#352d17;
+  --l1:#6cc493; --l2:#e0c06a; --l3:#f0a066; --l4:#f27b72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171d; --paper:#18212a; --ink:#e6ecf1; --muted:#9aa8b5; --line:#2c3843; --soft:#202b35;
+  --accent:#6bb4d6; --accent-soft:#1d3746; --code:#24303b;
+  --strong:#f08a6e; --strong-soft:#3d231c; --mod:#e0c06a; --mod-soft:#352d17;
+  --l1:#6cc493; --l2:#e0c06a; --l3:#f0a066; --l4:#f27b72; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 110px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:800;letter-spacing:-.01em}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.lead{color:var(--muted);max-width:72ch;margin:.4rem 0 0}
+header{display:grid;gap:6px;margin-bottom:22px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}
+.legend b{color:var(--mod);letter-spacing:-1px}
+
+.case{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:22px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-size:.8rem;font-weight:700;color:var(--muted);letter-spacing:.03em}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;box-sizing:border-box}
+textarea{min-height:64px;resize:vertical}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.thead,.row{display:grid;grid-template-columns:48px minmax(0,1fr) 150px 122px;align-items:center}
+.thead{background:var(--soft);font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.thead div{padding:10px 12px}
+.block{padding:10px 14px;background:var(--accent-soft);color:var(--accent);font-family:var(--display);font-weight:600;font-size:1rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.block small{font-family:var(--body);font-weight:600;font-size:.8rem;opacity:.85}
+.row{border-top:1px solid var(--line);cursor:pointer;transition:background .12s}
+.row:hover{background:var(--soft)}
+.row.on{background:var(--accent-soft)}
+.row > div{padding:11px 12px;min-width:0}
+.box{display:flex;justify-content:center}
+.box input{width:22px;height:22px;accent-color:var(--accent);cursor:pointer;margin:0}
+.ind b{display:block;font-weight:700}
+.ind .ex{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.ind code{font-family:var(--mono);font-size:.78rem;background:var(--code);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:1px 6px;overflow-wrap:anywhere}
+.ind .ds{display:block;color:var(--muted);font-size:.9rem;margin-top:2px}
+.num{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;margin-right:4px}
+.w{justify-self:start;font-size:.8rem;font-weight:700;border-radius:6px;padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.w.F{background:var(--strong-soft);color:var(--strong)}
+.w.M{background:var(--mod-soft);color:var(--mod)}
+.row:focus-within{outline:2px solid var(--accent);outline-offset:-2px}
+.stars{display:flex;gap:2px}
+.star{font:inherit;background:none;border:0;padding:2px;cursor:pointer;color:var(--line);font-size:1.35rem;line-height:1}
+.star.lit{color:var(--mod)}
+.row.on .star.lit{color:var(--strong)}
+.star:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+.slabel{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:2px}
+.rp{display:block;font-size:.78rem;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.wsel{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:.78rem;color:var(--muted)}
+.wsel select{font:inherit;font-size:.85rem;font-weight:700;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 4px;cursor:pointer}
+.wsel.changed select{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.w.D{background:var(--soft);color:var(--muted)}
+.dl{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.dl p{margin:0;font-size:.82rem;color:var(--muted)}
+.status{font-size:.85rem;color:var(--accent);min-height:1.2em;margin:0}
+
+aside{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 16px);display:grid;gap:14px}
+.score{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:12px;border-top:6px solid var(--lv,var(--l1))}
+.big{display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.big strong{font-family:var(--display);font-size:3rem;font-weight:800;line-height:1}
+.big span{color:var(--muted)}
+.meter{height:10px;border-radius:5px;background:var(--soft);position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;width:0;background:var(--lv,var(--l1));transition:width .25s}
+.level{font-family:var(--display);font-weight:700;font-size:1.15rem;color:var(--lv)}
+.action{margin:0;font-size:.95rem}
+.counts{display:flex;gap:14px;font-size:.88rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.scale{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.9rem}
+.scale h3{font-size:.95rem;margin-bottom:8px}
+.scale ol{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.scale li{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start}
+.scale li b{font-variant-numeric:tabular-nums;color:var(--c)}
+.scale li.cur{font-weight:700}
+.scale p{margin:10px 0 0;color:var(--muted);font-size:.85rem}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button.act{font:inherit;font-weight:600;font-size:.9rem;border-radius:8px;padding:7px 12px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+button.act.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.foot{margin-top:22px;color:var(--muted);font-size:.88rem;max-width:80ch}
+.decl{margin-top:28px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px;max-width:900px}
+.decl h2{font-size:1.15rem;margin-bottom:4px}
+.decl .sub{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+.decl dl{display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr);gap:8px 16px;margin:0;font-size:.95rem}
+.decl dt{font-weight:700;color:var(--accent)}
+.decl dd{margin:0;min-width:0}
+.decl ul{margin:0;padding-left:18px}
+@media (max-width:640px){.decl dl{grid-template-columns:1fr;gap:2px}.decl dd{margin-bottom:8px}}
+
+.mbar{display:none}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  aside{position:static}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--paper);border-top:4px solid var(--lv,var(--l1));
+    padding-block:10px calc(10px + env(safe-area-inset-bottom, 0px));
+    padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+    justify-content:space-between;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
+  .mbar strong{font-family:var(--display);font-size:1.4rem}
+  .mbar span{font-weight:700;color:var(--lv);text-align:right}
+}
+@media (max-width:640px){
+  .thead,.row{grid-template-columns:40px minmax(0,1fr)}
+  .thead div:nth-child(n+3){display:none}
+  .row > div.scell,.row > div.wcell{grid-column:2;padding-top:0}
+  .wcell{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .rp,.wsel{margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Instrumento de acompañamiento · Educación Media Superior · MCCEMS 2025</div>
+    <h1>Lista de cotejo: transparencia y proceso de aprendizaje</h1>
+    <p class="lead">Revise la actividad y sus acuerdos de uso de IA. Marque observaciones verificables y registre su frecuencia. Los puntajes solo ayudan a <b>priorizar una revisión formativa</b>: no detectan IA ni prueban una falta. Considere el propósito formativo, la evidencia del proceso, la explicación del estudiante y las condiciones de acceso tecnológico. Los ejemplos son ilustrativos y pueden aparecer sin uso de IA.</p>
+    <p class="legend"><span><b>★</b> 1 Apenas (un caso aislado)</span><span><b>★★</b> 2 Poco</span><span><b>★★★</b> 3 Moderado</span><span><b>★★★★</b> 4 Frecuente</span><span><b>★★★★★</b> 5 Predominante</span></p>
+  </header>
+
+  <section class="case" aria-label="Datos del caso">
+    <div class="fields">
+      <div class="field"><label for="caso">Estudiante / equipo</label><input type="text" id="caso"></div>
+      <div class="field"><label for="evid">Asignatura y evidencia</label><input type="text" id="evid"></div>
+      <div class="field"><label for="eval">Evaluador(a) (opcional)</label><input type="text" id="eval"></div>
+    </div>
+  </section>
+
+  <p class="foot" style="margin:0 0 14px"><b>Antes de marcar:</b> defina si la IA estaba permitida, con qué fines y qué evidencias de proceso se solicitaron. Marque únicamente lo observable; una casilla vacía significa «no observado» o «no aplica», no ausencia de uso de IA.</p>
+  <div class="layout">
+    <div class="sheet" role="group" aria-label="Indicadores">
+      <div class="thead"><div>✓</div><div>Indicador · ejemplos</div><div>Proporción</div><div>Peso · puntos</div></div>
+      <div id="rows"></div>
+    </div>
+
+    <aside>
+      <div class="score" id="score">
+        <div class="eyebrow">Puntos de revisión</div>
+        <div class="big"><strong id="pts">0</strong><span>puntos</span></div>
+        <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+        <div class="level" id="level"></div>
+        <p class="action" id="actiontxt"></p>
+        <div class="counts"><span>Fuertes: <b id="nf">0</b></span><span>Moderados o débiles: <b id="nm">0</b></span></div>
+        <div class="field"><label for="notas">Evidencia observada (frases, páginas, minutos)</label><textarea id="notas"></textarea></div>
+        <div class="btns">
+          <button class="act" id="ejemplo" type="button">Cargar caso de ejemplo</button>
+          <button class="act" id="nuevo" type="button">Nuevo caso</button>
+          <button class="act" id="resetw" type="button">Restablecer pesos sugeridos</button>
+        </div>
+        <div class="dl" id="dl">
+          <div class="btns">
+            <button class="act primary" id="dlhtml" type="button" disabled>Descargar informe (PDF)</button>
+            <button class="act" id="dlcsv" type="button" disabled>Descargar datos (CSV)</button>
+          </div>
+          <p id="dlnote">Preparando la descarga…</p>
+          <p class="status" id="dlstatus" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="scale">
+        <h3>Escala de interpretación</h3>
+        <ol id="scale"></ol>
+        <p>Las observaciones con mayor impacto orientan el acompañamiento; ningún indicador ni suma acredita uso de IA o una falta.</p>
+      </div>
+    </aside>
+  </div>
+
+  <p class="foot">Esta lista registra aspectos que requieren acompañamiento; no sustituye la conversación con el estudiante. Ninguna combinación de señales demuestra por sí sola el uso de IA. Antes de tomar decisiones, revise los acuerdos de la actividad, converse sin acusaciones, permita explicar el proceso y ofrezca oportunidades de mejora. No emplee detectores automáticos como prueba, ni penalice estilos de escritura, discapacidad o dominio del idioma.</p>
+
+  <section class="decl" aria-labelledby="declh">
+  <h2 id="declh">Origen y alcance del instrumento</h2>
+  <p class="sub">Adaptación para preparatorias del checklist interactivo compartido por la usuaria. Propuesta de acompañamiento formativo, no instrumento diagnóstico validado.</p>
+  <dl>
+   <dt>Marco de referencia</dt><dd>Modelo Educativo 2025 (MCCEMS): propósitos formativos, evaluación diagnóstica y formativa, retroalimentación, participación estudiantil y PAEC.</dd>
+   <dt>Adaptación</dt><dd>Se contextualizaron consignas, ejemplos e indicadores para asignaturas y proyectos de Educación Media Superior; se sustituyeron etiquetas de detección por acciones de acompañamiento.</dd>
+   <dt>IA generativa</dt><dd>Adaptación de redacción y código con apoyo de ChatGPT; revisar y adecuar acuerdos de uso antes de aplicar.</dd>
+   <dt>Límite</dt><dd>No se han validado ponderaciones, estrellas ni umbrales. No usar puntajes ni detectores automáticos como prueba de autoría o para sancionar.</dd>
+  </dl>
+ </section>
+</div>
+
+<div class="mbar" id="mbar" aria-live="polite"><strong id="mpts">0 pts</strong><span id="mlevel"></span></div>
+
+<script>
+// [título, ejemplos (array de fragmentos literales), descripción breve, peso]
+const BLOCKS=[
+ {name:"A. Acuerdos y transparencia de uso",hint:"Primero verifique qué se permitió en la actividad",items:[
+  ["No se declara la asistencia de IA cuando se solicitó",[],"El acuerdo de aula pedía indicar herramienta, finalidad y partes apoyadas, pero faltan datos.","F"],
+  ["El uso observado rebasa los límites acordados",[],"Se entregó una respuesta completa cuando solo se autorizaban ideas, ejemplos o revisión de estilo.","F"],
+  ["Fragmentos de conversación sin integrar",["Aquí tienes una respuesta…","¿Quieres que lo reformule?","[Agrega aquí tu experiencia]"],"Residuos que sugieren ausencia de revisión; también pueden ser ejemplos citados legítimamente.","M"],
+  ["Se omite explicar qué decidió el estudiante",[],"No se identifican aportes personales, cambios o decisiones tomadas al utilizar herramientas.","M"]]},
+ {name:"B. Propósitos formativos y contexto",hint:"Relación con la actividad y la comunidad",items:[
+  ["El trabajo no responde al propósito formativo",[],"El producto es fluido, pero no atiende la pregunta, contenidos o criterios de la asignatura.","F"],
+  ["Información incompatible con el contexto",[],"Datos, fechas o recursos del plantel o la comunidad son inexactos o inventados.","F"],
+  ["Sustituye una experiencia que debía ser auténtica",[],"Reemplaza observaciones, experimentos, entrevistas o trabajo comunitario por relatos no realizados.","F"],
+  ["Propuesta poco viable para el plantel",[],"Requiere laboratorios, presupuestos o tiempos que no existen, sin justificar alternativas.","M"],
+  ["Reflexión genérica sin evidencia situada",[],"Afirmaciones como 'aprendimos mucho' sin ejemplos, preguntas, decisiones o aprendizajes concretos.","M"]]},
+ {name:"C. Fuentes y pensamiento crítico",hint:"Verificación antes que estilo de escritura",items:[
+  ["Fuentes o citas que no existen",[],"Se consignan autores, enlaces, títulos o datos bibliográficos que no pueden verificarse.","F"],
+  ["Las fuentes no respaldan las afirmaciones",[],"Los documentos citados existen, pero no sostienen la información presentada.","F"],
+  ["Afirmaciones sin contraste",[],"Se aceptan datos o explicaciones de la IA sin comprobarlos con fuentes o evidencia pertinente.","M"],
+  ["No identifica limitaciones o sesgos relevantes",[],"Omite cuestionar una respuesta de IA cuando la actividad pedía análisis crítico.","M"]]},
+ {name:"D. Proceso de aprendizaje y autoría",hint:"Priorizar borradores, decisiones y demostraciones",items:[
+  ["No puede explicar una decisión central",[],"Tras una conversación respetuosa no logra explicar cómo resolvió, eligió o revisó una parte clave.","F"],
+  ["Faltan evidencias de proceso que sí fueron requeridas",[],"No se presentan notas, cálculos, bitácora, borradores o versiones solicitadas por la consigna.","M"],
+  ["Inconsistencias entre producto y desempeño",[],"Hay diferencias que ameritan conversación con ejercicios previos u observación en clase.","M"],
+  ["No hay reelaboración crítica",[],"La actividad requería identificar errores, mejorar el borrador o justificar cambios y no lo hace.","M"],
+  ["Productos muy similares entre equipos",[],"Coinciden decisiones, errores o ejemplos; explorar si se usó la misma plantilla o colaboración autorizada.","M"]]},
+ {name:"E. PAEC, trabajo en equipo y multimedia",hint:"Solo para actividades donde corresponda",items:[
+  ["El proyecto no muestra vínculo real con la comunidad",[],"Se describen problemas, entrevistas o actividades del PAEC sin evidencias de participación real.","F"],
+  ["No se documentan contribuciones del equipo",[],"Faltan roles, acuerdos, aportaciones o bitácoras que la actividad colectiva solicitaba.","M"],
+  ["Imágenes, audio o video sin declarar cuando se pidió",[],"Se incorporan medios posiblemente sintéticos sin atribución exigida por la actividad.","M"],
+  ["No puede sostener oralmente su producto",[],"No responde preguntas específicas sobre sus métodos, datos o conclusiones.","F"]]}
+];
+const LEVELS=[
+ {min:0,max:11,name:"Sin observaciones prioritarias",act:"Evalúe conforme a la rúbrica de aprendizaje y conserve las evidencias.",c:"--l1"},
+ {min:12,max:23,name:"Revisión de criterios",act:"Revise consignas, acuerdos de uso de IA y evidencia del proceso antes de interpretar.",c:"--l2"},
+ {min:24,max:35,name:"Conversación formativa",act:"Dialogue con el estudiante; contraste fuentes y solicite explicaciones o muestras del proceso.",c:"--l3"},
+ {min:36,max:9999,name:"Acompañamiento individual",act:"Realice una revisión dialogada con oportunidad de aclarar, corregir y demostrar aprendizaje.",c:"--l4"}
+];
+
+const SLAB=["","Apenas","Poco","Moderado","Frecuente","Predominante"];
+const PTS={F:3,M:2};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const items=[]; let n=0;
+const rowsEl=document.getElementById("rows");
+BLOCKS.forEach(b=>{
+  const h=document.createElement("div"); h.className="block";
+  h.innerHTML=`<span>${b.name}</span>${b.hint?`<small>${b.hint}</small>`:""}`; rowsEl.appendChild(h);
+  b.items.forEach(it=>{
+    n++; const id="i"+n;
+    const r=document.createElement("label"); r.className="row"; r.htmlFor=id;
+    r.innerHTML=`<div class="box"><input type="checkbox" id="${id}"></div>
+      <div class="ind"><b><span class="num">${n}.</span>${it[0]}</b>${it[1].length?`<span class="ex">${it[1].map(e=>`<code>${esc(e)}</code>`).join("")}</span>`:""}<span class="ds">${it[2]}</span></div>
+      <div class="scell"><div class="stars" role="radiogroup" aria-label="Proporción observada: ${it[0]}">${[1,2,3,4,5].map(s=>`<button type="button" class="star" data-s="${s}" role="radio" aria-checked="false" aria-label="${s} de 5 · ${SLAB[s]}">★</button>`).join("")}</div><div class="slabel"></div></div>
+      <div class="wcell"><span class="w"></span><span class="wsel"><span aria-hidden="true">Peso</span><select id="w${n}" aria-label="Peso de: ${it[0]}">${[1,2,3,4,5].map(v=>`<option value="${v}">${v}</option>`).join("")}</select><span>sug. ${PTS[it[3]]}</span></span><span class="rp"></span></div>`;
+    rowsEl.appendChild(r);
+    const sug=PTS[it[3]];
+    const o={id,n,block:b.name,title:it[0],sug,w:sug,row:r,cb:r.querySelector("input"),s:0,stars:[...r.querySelectorAll(".star")],sl:r.querySelector(".slabel"),rp:r.querySelector(".rp"),badge:r.querySelector(".w"),sel:r.querySelector("select"),wbox:r.querySelector(".wsel")};
+    o.stars.forEach(bt=>bt.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();
+      const v=+bt.dataset.s; o.s=(o.s===v)?0:v; o.cb.checked=o.s>0; render(); save();}));
+    o.wbox.addEventListener("click",e=>{if(e.target!==o.sel)e.preventDefault();e.stopPropagation()});
+    o.sel.addEventListener("change",()=>{o.w=+o.sel.value;render();save()});
+    o.cb.addEventListener("change",()=>{o.s=o.cb.checked?3:0;render();save()});
+    items.push(o);
+  });
+});
+
+const scaleEl=document.getElementById("scale");
+LEVELS.forEach((l,k)=>{const li=document.createElement("li");li.id="lv"+k;li.style.setProperty("--c",`var(${l.c})`);
+  li.innerHTML=`<b>${l.max>999?l.min+"+":l.min+"–"+l.max}</b><span>${l.name}</span>`;scaleEl.appendChild(li)});
+
+const kind=w=>w>=3?["F","Fuerte"]:w===2?["M","Moderado"]:["D","Débil"];
+let STATE={};
+function render(){
+  let pts=0,nf=0,nm=0,nfs=0;
+  items.forEach(i=>{if(!i.cb.checked)i.s=0;const on=i.cb.checked;i.row.classList.toggle("on",on);
+    i.stars.forEach((b,j)=>{b.classList.toggle("lit",j<i.s);b.setAttribute("aria-checked",String(j+1===i.s))});
+    i.sl.textContent=i.s?SLAB[i.s]:"";
+    const [kc,kn]=kind(i.w); i.badge.className="w "+kc; i.badge.textContent=kn;
+    i.sel.value=String(i.w); i.wbox.classList.toggle("changed",i.w!==i.sug);
+    const p=i.w*i.s; i.rp.textContent=on?`= ${p} pts`:"";
+    if(on){pts+=p;i.w>=3?nf++:nm++; if(i.w>=3&&i.s>=3)nfs++}});
+  let k=LEVELS.findIndex(l=>pts>=l.min&&pts<=l.max);
+  /* Los indicadores fuertes no determinan por sí solos un resultado. */
+  const L=LEVELS[k];
+  STATE={pts,nf,nm,L};
+  document.documentElement.style.setProperty("--lv",`var(${L.c})`);
+  document.getElementById("pts").textContent=pts;
+  document.getElementById("bar").style.width=Math.min(100,pts/48*100)+"%";
+  document.getElementById("level").textContent=L.name;
+  document.getElementById("actiontxt").textContent=L.act;
+  document.getElementById("nf").textContent=nf;document.getElementById("nm").textContent=nm;  document.getElementById("mpts").textContent=pts+" pts";document.getElementById("mlevel").textContent=L.name;
+  LEVELS.forEach((_,j)=>document.getElementById("lv"+j).classList.toggle("cur",j===k));
+}
+const FIELDS=["caso","evid","eval","notas"];
+function save(){try{localStorage.setItem("cotejoEMS2025v1",JSON.stringify({stars:items.map(i=>i.s),weights:items.map(i=>i.w),f:FIELDS.map(f=>document.getElementById(f).value)}))}catch(e){}}
+function load(s,keepW){items.forEach((i,k)=>{i.s=+((s.stars||[])[k]||0);i.cb.checked=i.s>0;
+  if(!keepW){const w=+((s.weights||[])[k]||0);i.w=(w>=1&&w<=5)?w:i.sug}});
+  FIELDS.forEach((f,k)=>document.getElementById(f).value=(s.f||[])[k]||"");render()}
+// Ejemplo: 1 residuo fuerte (Markdown), muletillas, vocabulario inflado, ejemplos genéricos, reflexión sin vulnerabilidad
+const EX={4:3,9:2,14:2};
+const EXAMPLE={stars:items.map((_,k)=>EX[k]||0),
+ f:["Ejemplo: equipo de 2.º semestre","Ciencias Naturales · reporte de calidad del agua","",
+ "La consigna exigía observación y bitácora. El reporte usa cifras no verificadas y no explica el muestreo; conversar con el equipo antes de concluir."]};
+FIELDS.forEach(f=>document.getElementById(f).addEventListener("input",save));
+// "Nuevo caso" conserva los pesos que el docente ajustó; el ejemplo usa los sugeridos
+document.getElementById("nuevo").onclick=()=>{load({},true);save()};
+document.getElementById("ejemplo").onclick=()=>{load(EXAMPLE);save()};
+document.getElementById("resetw").onclick=()=>{items.forEach(i=>i.w=i.sug);render();save()};
+let saved=null;try{saved=JSON.parse(localStorage.getItem("cotejoEMS2025v1"))}catch(e){}
+load(saved||EXAMPLE);
+
+/* ---------- Descarga del informe ---------- */
+const val=id=>document.getElementById(id).value.trim();
+const today=()=>new Date().toLocaleDateString("es-MX",{year:"numeric",month:"long",day:"numeric"});
+const starsTxt=s=>"★".repeat(s)+"☆".repeat(5-s);
+const slug=s=>(s||"caso").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\w]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"caso";
+function reportHTML(){
+  const {pts,nf,nm,L}=STATE;
+  const changed=items.filter(i=>i.w!==i.sug);
+  const lvColor={"--l1":"#2f7d4f","--l2":"#8a6a12","--l3":"#c0612b","--l4":"#a8322c"}[L.c];
+  let rows="",last="";
+  items.forEach(i=>{
+    if(i.block!==last){rows+=`<tr class="b"><td colspan="6">${esc(i.block)}</td></tr>`;last=i.block}
+    const on=i.s>0;
+    rows+=`<tr class="${on?"on":""}"><td>${i.n}</td><td>${esc(i.title)}</td><td class="c">${on?"Sí":"—"}</td><td class="st">${on?starsTxt(i.s)+" <small>"+SLAB[i.s]+"</small>":""}</td><td class="c">${i.w}${i.w!==i.sug?` <small>(sug. ${i.sug})</small>`:""}</td><td class="c n">${on?i.w*i.s:""}</td></tr>`;
+  });
+  const obs=items.filter(i=>i.s>0).sort((a,b)=>b.w*b.s-a.w*a.s);
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Informe de cotejo IA · ${esc(val("caso")||"Caso")}</title>
+<style>body{font-family:"Segoe UI",system-ui,sans-serif;color:#18232e;max-width:900px;margin:32px auto;padding:0 20px;line-height:1.45}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.1rem;margin:28px 0 8px}.meta{color:#5b6875;margin:0 0 18px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;border:1px solid #d9dfe5;border-top:6px solid ${lvColor};border-radius:10px;padding:16px}
+.sum b{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#5b6875}.sum span{font-size:1.15rem;font-weight:700}
+.lv{color:${lvColor}}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{border-bottom:1px solid #e3e7eb;padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#eaeef2;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}.b td{background:#dcebf2;color:#155a7a;font-weight:700}
+tr.on td{background:#fdf6ec}.c{text-align:center}.n{font-weight:700}.st{color:#b4432a;white-space:nowrap}small{color:#5b6875}
+ul{padding-left:20px}.note{white-space:pre-wrap;border:1px solid #d9dfe5;border-radius:8px;padding:10px;background:#f6f8fa}
+.foot{color:#5b6875;font-size:.85rem;margin-top:28px}@media print{body{margin:0}tr{break-inside:avoid}}</style></head><body>
+<h1>Informe de cotejo: transparencia y proceso de aprendizaje</h1>
+<p class="meta">Caso: <b>${esc(val("caso")||"Sin nombre")}</b> · Evidencia: ${esc(val("evid")||"—")} · Evaluador(a): ${esc(val("eval")||"—")} · Fecha: ${today()}</p>
+<div class="sum"><div><b>Puntos de revisión</b><span>${pts} puntos</span></div><div><b>Resultado</b><span class="lv">${L.name}</span></div>
+<div><b>Indicadores observados</b><span>${nf} fuertes · ${nm} moderados o débiles</span></div></div>
+<p><b>Acción sugerida:</b> ${L.act}</p>
+<h2>Aspectos prioritarios para conversar</h2>
+${obs.length?`<ul>${obs.slice(0,5).map(i=>`<li>${esc(i.title)}: ${starsTxt(i.s)} (${SLAB[i.s].toLowerCase()}), ${i.w*i.s} puntos</li>`).join("")}</ul>`:"<p>No se marcaron indicadores.</p>"}
+${val("notas")?`<h2>Evidencia observada</h2><div class="note">${esc(val("notas"))}</div>`:""}
+<h2>Pesos ajustados por el evaluador</h2>
+${changed.length?`<ul>${changed.map(i=>`<li>${i.n}. ${esc(i.title)}: peso ${i.w} (sugerido ${i.sug})</li>`).join("")}</ul>`:"<p>Se usaron los pesos sugeridos.</p>"}
+<h2>Lista de cotejo completa</h2>
+<table><thead><tr><th>#</th><th>Indicador</th><th class="c">Observado</th><th>Proporción</th><th class="c">Peso</th><th class="c">Puntos</th></tr></thead><tbody>${rows}</tbody></table>
+<p><b>Escala:</b> 0–11 sin observaciones prioritarias · 12–23 revisión de criterios · 24–35 conversación formativa · 36+ acompañamiento individual. Un indicador fuerte (peso 3 o más, con 3 estrellas o más) eleva el resultado al menos a «Conversar»; dos o más, a «Revisión dialogada del proceso».</p>
+<p class="foot">Este informe registra observaciones y no constituye prueba de uso de IA ni de incumplimiento. La puntuación y la falta de explicaciones no demuestran, por sí solas, uso de IA ni incumplimiento.</p>
+<p class="foot"><b>Declaración de uso de IA del instrumento:</b> la estructura, los indicadores, los pesos sugeridos y la página interactiva se elaboraron con apoyo de Claude (Anthropic, modelo Claude Opus 5.5, octubre de 2026), con dirección y revisión humana. Los pesos y umbrales son una propuesta inicial aún no validada con casos reales.</p>
+${val("eval")?`<div style="margin:44px auto 0;width:240px;text-align:center;border-top:1px solid #5b6875;padding-top:6px"><b>${esc(val("eval"))}</b><br><small>Evaluador(a)</small></div>`:""}
+</body></html>`;
+}
+function reportCSV(){
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const head=[["Caso",val("caso")],["Asignatura y evidencia",val("evid")],["Evaluador(a)",val("eval")],["Fecha",today()],["Puntos de revisión",STATE.pts],["Resultado",STATE.L.name],["Notas",val("notas")],[]];
+  const cols=["#","Bloque","Indicador","Observado","Estrellas","Proporción","Peso usado","Peso sugerido","Puntos"];
+  const lines=items.map(i=>[i.n,i.block,i.title,i.s?"Sí":"No",i.s,i.s?SLAB[i.s]:"",i.w,i.sug,i.w*i.s]);
+  return "﻿"+[...head,cols,...lines].map(r=>r.map(q).join(",")).join("\r\n");
+}
+/* ---------- Informe PDF (jsPDF + AutoTable) ---------- */
+function buildPDF(D){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"pt",format:"letter"});
+  const T=s=>String(s==null?"":s).replace(/★/g,"*").replace(/☆/g,"-").replace(/→/g,"->").replace(/[^\x00-\xFF–—‘’“”…€•]/g,"");
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=42,CW=W-2*M;
+  const INK=[24,35,46],MUT=[91,104,117],ACC=[21,90,122];
+  let y=M;
+  const need=h=>{if(y+h>H-M-14){doc.addPage();y=M}};
+  const para=(txt,opt={})=>{const size=opt.size||9.5;doc.setFont("helvetica",opt.bold?"bold":"normal");doc.setFontSize(size);doc.setTextColor(...(opt.color||INK));
+    const lines=doc.splitTextToSize(T(txt),opt.w||CW);const lh=size*1.32;need(lines.length*lh);doc.text(lines,opt.x||M,y+size);y+=lines.length*lh+(opt.after==null?4:opt.after)};
+  const h2=txt=>{y+=8;need(30);para(txt,{size:12,bold:true,color:ACC,after:4})};
+
+  doc.setFillColor(...ACC);doc.rect(0,0,W,6,"F");
+  para(D.title,{size:16,bold:true,after:6});
+  D.meta.forEach(([k,v])=>{doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(...MUT);need(14);doc.text(T(k)+":",M,y+9.5);
+    const kw=doc.getTextWidth(T(k)+": ");para(v||"—",{x:M+kw,w:CW-kw,after:1})});
+  y+=8;
+
+  const nb=D.summary.length,bw=(CW-(nb-1)*8)/nb,bh=46;need(bh+6);
+  D.summary.forEach(([k,v],i)=>{const x=M+i*(bw+8);doc.setDrawColor(217,223,229);doc.setLineWidth(.8);doc.roundedRect(x,y,bw,bh,5,5,"S");
+    doc.setFillColor(...(D.color||ACC));doc.rect(x,y,bw,4,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.text(T(k).toUpperCase(),x+8,y+17);
+    let fs=12.5;doc.setFontSize(fs);while(fs>8&&doc.getTextWidth(T(v))>bw-14){fs-=.5;doc.setFontSize(fs)}doc.setTextColor(...(i===1&&D.color?D.color:INK));doc.text(doc.splitTextToSize(T(v),bw-14)[0],x+8,y+35)});
+  y+=bh+10;
+  if(D.action)para("Acción sugerida: "+D.action,{bold:true,after:6});
+
+  (D.sections||[]).forEach(sec=>{h2(sec.title);
+    if(sec.items&&sec.items.length)sec.items.forEach(t=>para("•  "+t,{after:1}));
+    if(sec.text)para(sec.text,{color:sec.muted?MUT:INK});});
+
+  h2(D.table.title);
+  const body=[];
+  D.table.groups.forEach(g=>{body.push([{content:T(g.title),colSpan:D.table.head.length,styles:{fillColor:[220,235,242],textColor:ACC,fontStyle:"bold",halign:"left"}}]);
+    g.rows.forEach(r=>body.push(r.cells.map((c,i)=>({content:T(c),styles:r.on?{fillColor:[253,246,236]}:{}}))))});
+  doc.autoTable({startY:y,margin:{left:M,right:M,bottom:M+14},rowPageBreak:"avoid",head:[D.table.head],body,
+    styles:{font:"helvetica",fontSize:8.5,cellPadding:4,textColor:INK,lineColor:[227,231,235],lineWidth:.5,valign:"top"},
+    headStyles:{fillColor:[234,238,242],textColor:MUT,fontStyle:"bold",fontSize:7.5},
+    columnStyles:D.table.colStyles});
+  y=doc.lastAutoTable.finalY+10;
+  para(D.scale,{size:8.5,color:MUT});
+  D.foot.forEach(f=>{y+=2;para(f,{size:8,color:MUT})});
+
+  if(D.signer){y+=34;need(50);const cx=W/2;doc.setDrawColor(...MUT);doc.setLineWidth(.6);doc.line(cx-110,y,cx+110,y);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...INK);doc.text(T(D.signer),cx,y+14,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(...MUT);doc.text(T(D.signerRole||"Evaluador(a)"),cx,y+26,{align:"center"});y+=30}
+
+  const n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...MUT);
+    doc.text(T(D.footer),M,H-22);doc.text(`Página ${i} de ${n}`,W-M,H-22,{align:"right"})}
+  return doc;
+}
+function pdfData(){
+  const {pts,nf,nm,L}=STATE;
+  const RGB={"--l1":[47,125,79],"--l2":[138,106,18],"--l3":[192,97,43],"--l4":[168,50,44]};
+  const obs=items.filter(i=>i.s>0).sort((a,b)=>b.w*b.s-a.w*a.s);
+  const changed=items.filter(i=>i.w!==i.sug);
+  const groups=[];let g=null;
+  items.forEach(i=>{if(!g||g.title!==i.block){g={title:i.block,rows:[]};groups.push(g)}
+    const on=i.s>0;g.rows.push({on,cells:[i.n,i.title,on?"Sí":"—",on?`${i.s}/5 · ${SLAB[i.s]}`:"",i.w+(i.w!==i.sug?` (sug. ${i.sug})`:""),on?i.w*i.s:""]})});
+  return {title:"Lista de cotejo: transparencia y proceso de aprendizaje",color:RGB[L.c],
+    meta:[["Estudiante / equipo",val("caso")],["Asignatura y evidencia",val("evid")],["Evaluador(a)",val("eval")],["Fecha",today()]],
+    summary:[["Puntos de revisión",pts+" puntos"],["Resultado",L.name],["Fuertes",String(nf)],["Moderados o débiles",String(nm)]],
+    action:L.act,
+    sections:[
+      {title:"Aspectos prioritarios para conversar",items:obs.slice(0,5).map(i=>`${i.title}: ${i.s}/5 (${SLAB[i.s].toLowerCase()}), ${i.w*i.s} puntos`),text:obs.length?"":"No se marcaron indicadores."},
+      ...(val("notas")?[{title:"Evidencia observada",text:val("notas")}]:[]),
+      {title:"Pesos ajustados por el evaluador",items:changed.map(i=>`${i.n}. ${i.title}: peso ${i.w} (sugerido ${i.sug})`),text:changed.length?"":"Se usaron los pesos sugeridos."}
+    ],
+    table:{title:"Lista de cotejo completa",head:["#","Indicador","Observado","Proporción","Peso","Puntos"],groups,
+      colStyles:{0:{cellWidth:24,halign:"center"},2:{cellWidth:56,halign:"center"},3:{cellWidth:92},4:{cellWidth:70,halign:"center"},5:{cellWidth:44,halign:"center",fontStyle:"bold"}}},
+    scale:"Escala: 0–11 sin observaciones prioritarias · 12–23 revisión de criterios · 24–35 conversación formativa · 36 o más acompañamiento individual. Un indicador fuerte (peso 3 o más, con 3 estrellas o más) eleva el resultado al menos a «Conversar»; dos o más, a «Revisión dialogada del proceso». Puntos = peso × estrellas.",
+    foot:["Este informe registra observaciones y no constituye prueba de uso de IA ni de incumplimiento. La puntuación y la falta de explicaciones no demuestran, por sí solas, uso de IA ni incumplimiento.",
+      "Adaptación para EMS del instrumento proporcionado, con apoyo de ChatGPT. Pesos y umbrales no validados."],
+    signer:val("eval"),signerRole:"Evaluador(a)",
+    footer:"Cotejo formativo IA · MCCEMS 2025 · "+(val("caso")||"Caso")+" · "+today()};
+}
+const dlStatus=document.getElementById("dlstatus"),dlNote=document.getElementById("dlnote");
+const bH=document.getElementById("dlhtml"),bC=document.getElementById("dlcsv");
+function browserSave(filename,data){
+  const mime=filename.endsWith(".csv")?"text/csv;charset=utf-8":filename.endsWith(".pdf")?"application/pdf":"text/html;charset=utf-8";
+  const url=URL.createObjectURL(new Blob([data],{type:mime}));
+  const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  dlStatus.textContent="Archivo descargado.";
+}
+(()=>{
+  // GitHub Pages: descargas mediante las APIs nativas del navegador.
+  const save=browserSave;
+  bH.disabled=false;bC.disabled=false;
+  dlNote.textContent="El informe se descarga en PDF. El CSV se abre en Excel.";
+  const base=()=>"cotejo-EMS2025_"+slug(val("caso"))+"_"+new Date().toISOString().slice(0,10);
+  bH.onclick=()=>{
+    if(window.jspdf&&window.jspdf.jsPDF){
+      try{const doc=buildPDF(pdfData());save(base()+".pdf",doc.output("arraybuffer"));return}
+      catch(e){dlStatus.textContent="No se pudo generar el PDF; se descarga el informe en HTML."}
+    }else dlStatus.textContent="No se pudo cargar el generador de PDF; se descarga el informe en HTML.";
+    setTimeout(()=>save(base()+".html",reportHTML()),600);
+  };
+  bC.onclick=()=>save(base()+".csv",reportCSV());
+})();
+</script>
+
+</body>
+</html>
